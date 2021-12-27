@@ -1,0 +1,246 @@
+\documentclass[11pt]{article}
+
+\input{structure.tex} 
+\usepackage{caption}
+\title{AMS 595: Project Report} 
+\author{Kai Li\\ \texttt{kai.li@stonybrook.edu}}
+\date{Stony Brook University --- \today} 
+\usepackage{hyperref}
+
+\begin{document}
+\maketitle
+
+\section{Project Objectives}
+
+As a statistics-track master's student, I am particularly interested in numerical analysis. This project's primary goal is to practice, deepen, and expand my current mathematics and programming skills. Therefore, the project is a good chance for me to do some scientific numerical approximation work using programming skills learned in AMS 595 and previous numerical analysis experience. At the end of the course, I have gained sufficient knowledge in various programming languages. In fact, I have enrolled in a course named "Scientific Computing" during the final semester of my undergraduate study. In that course, I studied introductory numerical analysis and used Matlab to do scientific computing assignments. Therefore, I chose C++ as my programming language for the project to proceed with my interest in numerical approximation to get myself familiar with C++ scientific computing.
+
+Motivated by the scientific computing problem of $\pi$ in AMS 595 C++ homework assignment, I will practice scientific computing skills on numerically estimating the logarithmic constant $e$, also called the Euler's number. In honor of Euler's and many other great mathematicians' life, as they made incredible contributions to the development of mathematics, such as the two irrationals $\pi$ and $e$, I realized the importance of summarizing the existing methods of computing $e$. The methods are very different, depending on accuracy, convergence speed, and input. In this project, because I have already done some approximation computations on $\pi$ in the C++ homework assignment, it is an extra opportunity to dig into numerical computing methods of $e$. More importantly, the project improves my ability to think analytically and creatively because I have the chance to read and possibly prove the methods of computing $e$.
+
+\section{Numerical Approximation Methods}
+There exist numerous approximations of the natural base of the logarithm $e$. For example, a simple rational fraction approximation is $\frac{878}{323}$, using integers less than $1000$ in the denominator and the numerator \cite{bk:maor}. Moreover, $e$ can be approximated by repeating decimal fraction $2.7\overline{1828}$ \cite{ar:brown}. In this project, to improve programming skills in C++ and expand graduate-level applied mathematics knowledge, all approximations require inputs to determine the precision level of approximation. More specifically, the methods are functions that involve either limit, series, product, sequence, or gamma function. 
+
+I will focus on two different categories of approximations. Scientific approximation methods \ref{2.1}, \ref{2.3}, and \ref{2.4} will be based on number $n$ in the approximation expressions. The three methods are one-term simple expressions without summations of the other terms but depend on input $n$. Methods \ref{2.5}, \ref{2.6}, \ref{2.7}, and \ref{2.8} are based on order $p$, or the number of terms $n$, in the expressions. The expressions are either a series, a product, or a continued fraction that input the number of terms wanted in the approximations. The method in \ref{2.2} is special because it requires two inputs: $n$ and $p$. For the purpose of the project, I will assume that the order is fixed for method \ref{2.2}.
+
+\subsection{Compound Interest Method (CIM)}\label{2.1}
+The most classical method of computing $e$ is the \hyperref[2.1]{CIM} from the study of the theory of interest \cite{bk:iyanaga_kawada}: 
+\begin{equation}
+e=\lim_{n\to\infty} \left(1+\frac{1}{n}\right)^n
+\end{equation}
+This limit is often one of the most crucial results in undergraduate-level calculus.  
+
+\subsection{Improved Compound Interest Method (ICIM)}\label{2.2}
+Inspired by the \hyperref[2.1]{CIM}, the \hyperref[2.6]{PSM} shown in Section \ref{2.6}, and previous calculus experience, I noticed the following approximation method: 
+\begin{equation}\label{icim}
+e=\lim_{n\to\infty}\,\lim_{p\to\infty}\,\sum_{k=0}^{p} \left(\frac{1}{k!\,n^{k}}\right)^{n}=\lim_{n\to\infty} \left(1+\frac{1}{1!\,n}+\frac{1}{2!\,n^{2}}+\dots+\frac{1}{p!\,n^{p}}+\cdots\right)^{n}
+\end{equation}
+To be more specific, the inspiration came from a note (which cannot be found now) in my first year undergraduate real analysis course that proves Equation (\ref{icim}) in cases which order $p=2$ and $p=3$. Though I have not seen proof for Equation (\ref{icim}) in $p$ and infinite dimensions, it makes sense to generalize the above equation to $p$ and infinite orders using mathematical induction.
+
+Note that the \hyperref[2.1]{CIM} is a special case of the \hyperref[2.2]{ICIM} for $p=1$. Compared to the \hyperref[2.1]{CIM}, I conjecture that the \hyperref[2.2]{ICIM} is a more precise estimate because the infinite series gives more information on the value of $e$. I also believe that if $p$ increases, the more precise estimate will output. The result of my conjecture will be shown later.
+
+On the other hand, there is a disadvantage in the number of terms $p$ we can reach in scientific computing. More precisely, I experimented on a standard computer that $p!$, in Equation (\ref{icim}), exceeds the maximum precision level of variable type "int" when $p\geq 13$. Precision means the number of meaningful digits \cite{bk:savitch}. This problem is known as overflow. There are possible solutions, but I will use "int" as the variable type in calculations involving factorial and power for the project's scope.
+
+\subsection{Complementary Addition Method (CAM)}\label{2.3}
+The \hyperref[2.3]{CAM} is another simple improvement for the \hyperref[2.1]{CIM} \cite{ar:brothers_knox}:
+\begin{equation}
+e=\lim_{n\to\infty}\,\frac{1}{2}\left[\left(1+\frac{1}{n}\right)^{n}+\left(1-\frac{1}{n}\right)^{-n}\right]
+\end{equation}
+Fortunately, this method will not raise overflow issue for reasonable inputs ($n\leq2147483647$) because the two bases of the exponents are close to $1$.
+
+\subsection{Power Ratio Method (PRM)}\label{2.4}
+The \hyperref[2.4]{PRM} comes by analyzing the behaviors of the rate of change of the ratio between two adjacent numbers raised to their own power \cite{ar:brothers_knox}:
+\begin{equation}
+e=\lim_{n\to\infty} \left[\frac{(n+1)^{n+1}}{n^{n}}-\frac{n^{n}}{(n-1)^{n-1}}\right]
+\end{equation}
+In this method, at first, I conjectured that there would be an overflow problem. Because $n^n$ exceeds the maximum precision level of variable type "int" when $n>9$. However, due to the fraction of two exponentiations, the decimal value drastically decreases. Thus, the overflow problem will not arise until $n$ is bigger than $142$.
+
+\subsection{Stirling's Formula Approximation Method (SFAM)}\label{2.5}
+This method can be derived from the famous Stirling's formula $n!\sim\sqrt{2\pi n}\left(\frac{n}{e}\right)^{n}$:
+\begin{equation}
+e=\lim_{n\to\infty} \frac{n}{\sqrt[\leftroot{-2}\uproot{2}n]{n!\,}}
+\end{equation}
+Because of the factorial in the denominator, the overflow issue restricts $n$ to be less than $13$.
+
+\subsection{Power Series Method (PSM)}\label{2.6}
+The following method originates from the power series of $e^x$ evaluated at $x=1$:
+\begin{equation}
+e=\lim_{n\to\infty}\,\sum_{k=0}^{n} \frac{1}{k!} = \frac{1}{0!}+\frac{1}{1!}+\dots+\frac{1}{n!}+\cdots
+\end{equation}
+Similar to the \hyperref[2.2]{ICIM} and the \hyperref[2.5]{SFAM}, the factorial raises the overflow problem.
+
+\subsection{Continued Fraction Method (CFM)}\label{2.7}
+Euler proved the following continued fraction expansion in \cite{ar:euler}:
+\begin{equation}
+e=2+\cfrac{1}{1+\cfrac{1}{2+\cfrac{1}{ 1+\cfrac{1}{1+\cfrac{1}{4+\cfrac{1}{1+\cfrac{1}{1+\cfrac{1}{6+\ddots}}}}}}}}.
+\end{equation}
+The continued fraction is an infinite sequence \cite{bk:finch} defined by
+\[
+[a_0, a_1,\dots,a_i,\dots]=
+\begin{cases}
+\,2                & i=0,\\
+\,\frac{2(i+1)}{3} & i=3k-1, \quad \forall i\in\mathbb{N}^{0},\, k\in\mathbb{N}^{+}\\ 
+\,1                & \textit{otherwise}.
+\end{cases}
+\]
+In a more simple sequence form, the expansion of $e$ is known explicitly as \cite{bk:eymard_lafon}:
+\[
+e=[2, 1, 2, 1, 1, 4, 1, 1, 6, \dots, 1, 1, 2n, \dots].
+\]
+
+\subsection{Pippenger Product Method (PPM)}\label{2.8}
+The Pippenger Product is a striking companion to Wallis's product \cite{ar:pippenger}, which expresses $e$ in terms of an infinite product:
+\begin{equation}
+\begin{split}
+e&=\lim_{n\to\infty}\,2\left(\frac{2}{1}\right)^{\frac{1}{2}}\prod_{k=2}^{n} \frac{2^{2^{k}-1}\left[\Gamma\left(\frac{1}{2}+2^{k-2}\right)\right]^{4}}{\pi\left[\Gamma\left(\frac{1}{2}+2^{k-1}\right)\right]^{2}}\\
+&=2\left(\frac{2}{1}\right)^{\frac{1}{2}}\left(\frac{2}{3}\frac{4}{3}\right)^{\frac{1}{4}}\left(\frac{4}{5}\frac{6}{5}\frac{6}{7}\frac{8}{7}\right)^{\frac{1}{8}}\left(\frac{8}{9}\frac{10}{9}\frac{10}{11}\frac{12}{11}\frac{12}{13}\frac{14}{13}\frac{14}{15}\frac{16}{15}\right)^{\frac{1}{16}}\cdots
+\end{split}
+\end{equation}
+However, the drawback is that the overflow problem will occur when $n\geq 8$ because of the $2^{2^{k}-1}$ in the numerator.
+
+\section{Results and Conclusions}
+\subsection{Approximations Based on $n$ or Order $p$/$n$}\label{3.1}
+The following two tables summarize the eight methods of estimating Euler's number $e$ in $8$ digits after the decimal point, fixing $n$ to be $7$:
+\\\\ 
+\begin{tabular}{ |p{1.95cm}|p{2.4cm}|p{2.78cm}| }
+\hline
+\multicolumn{3}{|c|}{Results Table ($n=7$)} \\
+\hline
+Method       & Approximation & Absolute Error \\ 
+\hline\hline
+CIM          & 2.54649970    & 1.71782131e-1 \\ 
+\hline
+ICIM ($p$=5) & 2.71828163    & 1.98774743e-7 \\
+\hline
+CAM          & 2.74419857    & 2.59167369e-2 \\
+\hline
+PRM          & 2.72061297    & 2.33114567e-3 \\
+\hline
+\end{tabular}
+\,
+\begin{tabular}{ |p{1.3cm}|p{2.4cm}|p{2.7cm}| }
+\hline
+\multicolumn{3}{|c|}{Results Table ($n=7$)} \\
+\hline
+Method & Approximation & Absolute Error \\ 
+\hline\hline
+SFAM   & 2.07099663    & 6.47285200e-1 \\
+\hline
+PSM    & 2.71825397    & 2.78602051e-5 \\
+\hline
+CFM    & 2.71830986    & 2.80306959e-5 \\
+\hline
+PPM    & 2.71830948    & 2.76515396e-5 \\
+\hline
+\end{tabular}
+\\\\
+In the left results table, among the four approximations which depend on $n$, the difference between the actual constant value $e$ and the estimate in the \hyperref[2.2]{ICIM} is the smallest. Conversely, the \hyperref[2.1]{CIM} converges the slowest. Also, because \hyperref[2.1]{CIM} is a special case of the \hyperref[2.2]{ICIM}, we see that the convergence to $e$ of the \hyperref[2.2]{ICIM} is much faster, which verifies my conjecture in \ref{2.2}.
+
+For the methods which depend on orders or the number of terms, the differences are very small among the \hyperref[2.6]{PSM}, the \hyperref[2.7]{CFM}, and \hyperref[2.8]{PPM}. On the other hand, the \hyperref[2.5]{SFAM} provides an estimate with a much larger absolute error, relatively speaking, given the same number of terms $n$.
+\\\\
+The next two tables show the results for approximations using the eight methods with a larger $n$:\\\\
+\begin{tabular}{ |p{1.95cm}|p{2.35cm}|p{2.78cm}| }
+\hline
+\multicolumn{3}{|c|}{Results Table ($n=100$)} \\
+\hline
+Method       & Approximation & Absolute Error \\ 
+\hline\hline
+CIM          & 2.70481383    & 1.34679990e-2 \\ 
+\hline
+ICIM ($p$=5) & 2.71828183    & 3.74131715e-13 \\
+\hline
+CAM          & 2.71840643    & 1.24599466e-4 \\
+\hline
+PRM          & 2.71829316    & 1.13266405e-5 \\
+\hline
+\end{tabular}
+\,
+\begin{tabular}{ |p{1.2cm}|p{2.35cm}|p{2.78cm}| }
+\hline
+\multicolumn{3}{|c|}{Results Table ($n=100$)} \\
+\hline
+Method & Approximation & Absolute Error \\ 
+\hline\hline
+SFAM   & N/A           & N/A \\
+\hline
+PSM    & N/A           & N/A \\
+\hline
+CFM    & 2.71828183    & 1.44632570e-16 \\
+\hline
+PPM    & N/A           & N/A \\
+\hline
+\end{tabular}
+\\\\
+The conclusions obtained in the first two tables ($n=7$) match exactly 
+with the results for $n=100$ for the methods depend on $n$. In the results table on the right, I only obtained a result for the \hyperref[2.7]{CFM} for $n=100$ because no overflow problem occurs in this calculation. Yet, I speculate that the pattern follows for the three methods depend on orders $n$ for orders $n=7$ to $n=100$ as well. That is, I claim that the \hyperref[2.5]{SFAM} converges at a terrible speed compared to the other three methods. Also, there is a probability that the convergence rate for the \hyperref[2.6]{PSM}, the \hyperref[2.7]{CFM}, and \hyperref[2.8]{PPM} is similar. However, because results cannot be obtained for the four methods except for the \hyperref[2.5]{SFAM}, there may be a coincidence that the convergence speed changes for any one of the three methods in any order $n>7$.
+
+\subsection{Approximations Based on Absolute Error}
+Finally, the following tables show the number of $n$ or the number of terms needed to obtain certain levels of precisions:\\\\
+\begin{tabular}{ |p{2cm}|p{2.2cm}|p{2.7cm}| }
+\hline
+\multicolumn{3}{|c|}{Results Table ($\textrm{Error}<10^{-4}$)} \\
+\hline
+Method       & $n$            & Absolute Error \\ 
+\hline\hline
+CIM          & $\approx$13591 & 9.99962686e-5 \\ 
+\hline
+ICIM ($p$=5) & 2              & 7.70080380e-5 \\
+\hline
+CAM          & 112            & 9.93280642e-5 \\
+\hline
+PRM          & 34             & 9.80122646e-5 \\
+\hline
+\end{tabular}
+\,
+\begin{tabular}{ |p{1.3cm}|p{2.2cm}|p{2.7cm}|  }
+\hline
+\multicolumn{3}{|c|}{Results Table ($\textrm{Error}<10^{-4}$)} \\
+\hline
+Method & $n$ & Absolute Error \\ 
+\hline\hline
+SFAM   & >12 & N/A \\
+\hline
+PSM    & 7   & 2.78602051e-5 \\
+\hline
+CFM    & 7   & 2.80306959e-5 \\
+\hline
+PPM    & 7   & 2.76515396e-5 \\
+\hline
+\end{tabular}
+\\
+\begin{tabular}{ |p{2cm}|p{2.2cm}|p{2.7cm}|  }
+\hline
+\multicolumn{3}{|c|}{Results Table ($\textrm{Error}<10^{-7}$)} \\
+\hline
+Method       & $n$                 & Absolute Error \\ 
+\hline\hline
+CIM          & $\approx$13,000,000 & 9.90995765e-8 \\ 
+\hline
+ICIM ($p$=5) & 9                   & 5.81338827e-8 \\
+\hline
+CAM          & $\approx$3530       & 9.99831204e-8 \\
+\hline
+PRM          & >142                & N/A \\
+\hline
+\end{tabular}
+\,
+\begin{tabular}{ |p{1.3cm}|p{2.2cm}|p{2.7cm}|  }
+\hline
+\multicolumn{3}{|c|}{Results Table ($\textrm{Error}<10^{-7}$)} \\
+\hline
+Method & $n$ & Absolute Error \\ 
+\hline\hline
+SFAM   & >12 & N/A \\
+\hline
+PSM    & 10  & 2.73126606e-8 \\
+\hline
+CFM    & 11  & 6.74694742e-9 \\
+\hline
+PPM    & >7  & N/A \\
+\hline
+\end{tabular}
+\\\\
+Most of the results gained here match the conclusions in Section \ref{3.1}. An additional finding is that the number $n$ needed to obtain a more accurate result for the \hyperref[2.1]{CIM} increases drastically. That again suggests that the classical method converges very slowly to the true value $e$, though eventually the limit as $n$ goes to infinity will be $e$. In the above tables, the $n$'s obtained for the \hyperref[2.1]{CIM} and the \hyperref[2.3]{CAM} are approximated. These $n$'s may not be the first $n$'s that reach the precision levels, as I observed in my trial and error experimentation. The reason is that for a large $n$, the approximation is not strictly, but in general, increasing or decreasing. However, because the differences between the approximations for the numbers near $n$, $n$ being large, are small enough to be negligible. Therefore, I used $\approx$ to denote the desired $n$ to reach the absolute error level, though the first actual $n$ with respect to its absolute error that is less than the wanted absolute error can be a few numbers before the $n$ approximated.
+
+\bibliographystyle{abbrv}
+\bibliography{refs}
+
+\end{document}
