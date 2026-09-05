@@ -1,6 +1,6 @@
 # Numerical Approximations of Euler's Number
 
-A C++ command-line program comparing eight numerical constructions of Euler's number \(e\), created for AMS 595: Fundamentals of Computing in Fall 2020.
+A C++ command-line program comparing eight numerical constructions of Euler's number $e$, created for AMS 595: Fundamentals of Computing in Fall 2020.
 
 ## Implemented methods
 
