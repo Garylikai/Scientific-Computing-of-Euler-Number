@@ -10,12 +10,12 @@ The menu-driven program includes:
 2. an improved compound-interest expansion;
 3. complementary addition;
 4. a power-ratio construction;
-5. a Stirling-formula approximation;
+5. an approximation based on Stirling’s formula;
 6. the reciprocal-factorial power series;
 7. a continued fraction; and
 8. a Pippenger product.
 
-For each selected method, the program prints the approximation and its absolute error relative to the standard-library value.
+For each selected method, the program prints the approximation and its absolute error relative to the standard library value.
 
 ## Repository contents
 
